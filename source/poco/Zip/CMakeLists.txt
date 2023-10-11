@@ -11,8 +11,8 @@ POCO_HEADERS_AUTO( SRCS ${HDRS_G})
 
 # Version Resource
 if(MSVC AND NOT POCO_STATIC)
-    source_group("Resources" FILES ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
-    list(APPEND SRCS ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
+    source_group("Resources" FILES ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
+    list(APPEND SRCS ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
 endif()
 
 add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
@@ -31,6 +31,18 @@ target_include_directories( "${LIBNAME}"
         $<INSTALL_INTERFACE:include>
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
+if(POCO_UNBUNDLED)
+    if(POCO_WITH_SHARED_ZLIB)
+        set(ZLIB_USE_STATIC_LIBS OFF)
+    else()
+        set(ZLIB_USE_STATIC_LIBS ON)
+    endif()
+    find_package(SiblingZLIB)
+    if(ZLIB_FOUND)
+        target_include_directories( "${LIBNAME}"
+            PRIVATE ${ZLIB_INCLUDE_DIRS} )
+    endif()
+endif()
 target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
 
 POCO_INSTALL("${LIBNAME}")

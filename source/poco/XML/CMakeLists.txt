@@ -16,16 +16,21 @@ POCO_HEADERS_AUTO( SRCS ${HDRS_G})
 
 # Version Resource
 if(MSVC AND NOT POCO_STATIC)
-    source_group("Resources" FILES ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
-    list(APPEND SRCS ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
+    source_group("Resources" FILES ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
+    list(APPEND SRCS ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
 endif()
 
 # If POCO_UNBUNDLED is enabled we try to find the required packages
 # The configuration will fail if the packages are not found
 if (POCO_UNBUNDLED)
-    find_package(EXPAT REQUIRED)
-    set(SYSLIBS ${SYSLIBS} ${EXPAT_LIBRARIES})
-    include_directories(${EXPAT_INCLUDE_DIRS})
+    find_package(SiblingEXPAT)
+    if(NOT EXPAT_FOUND)
+        find_package(EXPAT REQUIRED)
+    endif()
+    if(EXPAT_FOUND)
+        set(SYSLIBS ${SYSLIBS} ${EXPAT_LIBRARIES})
+        include_directories(${EXPAT_INCLUDE_DIRS})
+    endif()
 else()
     POCO_SOURCES( SRCS expat
     src/xmlparse.cpp
@@ -60,6 +65,7 @@ target_include_directories( "${LIBNAME}"
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
+target_link_options("${LIBNAME}" PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/FORCE:MULTIPLE>)
 
 POCO_INSTALL("${LIBNAME}")
 POCO_GENERATE_PACKAGE("${LIBNAME}")

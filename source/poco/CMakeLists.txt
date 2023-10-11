@@ -6,7 +6,7 @@
 # ENABLE_{COMPONENT}
 # ENABLE_TESTS
 
-cmake_minimum_required(VERSION 3.2.0)
+cmake_minimum_required(VERSION 3.2.0...3.15.0)
 
 project(Poco)
 
@@ -25,6 +25,10 @@ set(COMPLETE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINO
 set(RELEASE_NAME "Unstable-trunk")
 set(PROJECT_VERSION ${COMPLETE_VERSION})
 set(CMAKE_C_STANDARD 99)
+
+option(POCO_WITH_SHARED_LIBRARIES "Build shared version of the POCO libraries." OFF)
+option(POCO_WITH_SHARED_ZLIB "Build POCO with shared version of Zlib." OFF)
+option(POCO_WITHOUT_APPS "Build POCO without apps." OFF)
 
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf
@@ -119,7 +123,7 @@ option(POCO_STATIC
   "Set to OFF|ON (default is OFF) to control build of POCO as STATIC library" OFF)
 
 option(POCO_UNBUNDLED
-  "Set to OFF|ON (default is OFF) to control linking dependencies as external" OFF)
+  "Set to OFF|ON (default is OFF) to control linking dependencies as external" ON)
 
 if(MSVC)
     option(POCO_MT
@@ -127,6 +131,19 @@ if(MSVC)
 
     option(ENABLE_MSVC_MP
       "Set to OFF|ON (default is OFF) to control parallel build of POCO with MSVC" OFF)
+endif()
+
+if(POCO_WITH_SHARED_LIBRARIES)
+    set(POCO_STATIC OFF)
+else()
+    set(POCO_STATIC ON)
+endif()
+if(POCO_WITHOUT_APPS)
+    set(ENABLE_PAGECOMPILER OFF)
+    set(ENABLE_PAGECOMPILER_FILE2PAGE OFF)
+else()
+    set(ENABLE_PAGECOMPILER ON)
+    set(ENABLE_PAGECOMPILER_FILE2PAGE ON)
 endif()
 
 # Uncomment from next two lines to force static or dynamic library, default is autodetection
@@ -209,9 +226,12 @@ if(WIN32 AND EXISTS ${PROJECT_SOURCE_DIR}/NetSSL_Win AND ENABLE_NETSSL_WIN)
     list(APPEND Poco_COMPONENTS "NetSSL_Win")
 endif(WIN32 AND EXISTS ${PROJECT_SOURCE_DIR}/NetSSL_Win AND ENABLE_NETSSL_WIN)
 
-find_package(OpenSSL)
+find_package(SiblingOpenSSL)
+if(NOT OPENSSL_FOUND)
+    find_package(OpenSSL)
+endif()
 if(OPENSSL_FOUND)
-    include_directories("${OPENSSL_INCLUDE_DIR}")
+    include_directories("${OPENSSL_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR}")
     if(EXISTS ${PROJECT_SOURCE_DIR}/NetSSL_OpenSSL AND ENABLE_NETSSL)
     add_subdirectory(NetSSL_OpenSSL)
     list(APPEND Poco_COMPONENTS "NetSSL_OpenSSL")
@@ -284,7 +304,7 @@ add_custom_target(uninstall
 #############################################################
 # Enable packaging
 
-include(InstallRequiredSystemLibraries)
+#include(InstallRequiredSystemLibraries)
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Poco Libraries")
 set(CPACK_PACKAGE_VENDOR "Applied Informatics Software Engineering GmbH")

@@ -11,8 +11,8 @@ POCO_HEADERS_AUTO( SRCS ${HDRS_G})
 
 # Version Resource
 if(MSVC AND NOT POCO_STATIC)
-    source_group("Resources" FILES ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
-    list(APPEND SRCS ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
+    source_group("Resources" FILES ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
+    list(APPEND SRCS ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
 endif()
 
 POCO_SOURCES_AUTO_PLAT( SRCS WIN32
@@ -32,6 +32,13 @@ set_target_properties( "${LIBNAME}"
 
 target_link_libraries( "${LIBNAME}" Foundation)
 if (ENABLE_XML)
+	if (POCO_UNBUNDLED)
+		find_package(SiblingEXPAT)
+		if(EXPAT_FOUND)
+			target_include_directories( "${LIBNAME}"
+				PRIVATE ${EXPAT_INCLUDE_DIRS} )
+		endif()
+	endif()
 	target_link_libraries( "${LIBNAME}" XML)
 else ()
 	add_definitions( -DPOCO_UTIL_NO_XMLCONFIGURATION )
@@ -40,6 +47,9 @@ if (ENABLE_JSON)
 	target_link_libraries( "${LIBNAME}" JSON)
 else ()
 	add_definitions( -DPOCO_UTIL_NO_JSONCONFIGURATION )
+endif()
+if (WIN32)
+	target_link_libraries( "${LIBNAME}" advapi32)
 endif()
 
 target_include_directories( "${LIBNAME}"

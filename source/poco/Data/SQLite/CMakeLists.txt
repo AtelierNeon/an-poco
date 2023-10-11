@@ -11,14 +11,19 @@ POCO_HEADERS_AUTO( SQLITE_SRCS ${HDRS_G})
 
 # Version Resource
 if(MSVC AND NOT POCO_STATIC)
-    source_group("Resources" FILES ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
-    list(APPEND SQLITE_SRCS ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
+    source_group("Resources" FILES ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
+    list(APPEND SQLITE_SRCS ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
 endif()
 
 if (POCO_UNBUNDLED)
-    find_package(SQLite3)
-    set(DATASQLITELIBS ${SQLITE3_LIBRARIES})
-    include_directories("${SQLITE3_INCLUDE_DIRS}")
+    find_package(SiblingSQLite3)
+    if(NOT SQLITE3_FOUND)
+        find_package(SQLite3)
+    endif()
+    if(SQLITE3_FOUND)
+        set(DATASQLITELIBS ${SQLITE3_LIBRARIES})
+        include_directories("${SQLITE3_INCLUDE_DIRS}")
+    endif()
 else()
     # sqlite3
     POCO_SOURCES( SQLITE_SRCS sqlite3
