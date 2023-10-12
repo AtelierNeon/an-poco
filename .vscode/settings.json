@@ -1,0 +1,16 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build/vscode",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.configureSettings": {
+        "EXPAT_WITHOUT_APPS": "ON",
+        "EXPAT_WITHOUT_TEST_APPS": "ON",
+        "OPENSSL_WITH_DEPRECATED_CIPHERS": "ON",
+        "OPENSSL_WITH_ZLIB": "ON",
+        "OPENSSL_WITHOUT_APPS": "ON",
+        "PCRE_WITHOUT_APPS": "ON",
+        "PCRE_WITHOUT_TEST_APPS": "ON",
+        "POCO_WITHOUT_APPS": "OFF",
+        "SQLITE_WITHOUT_APPS": "ON",
+        "ZLIB_WITHOUT_TEST_APPS": "ON"
+    }
+}
